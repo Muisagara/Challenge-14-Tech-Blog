@@ -1,0 +1,23 @@
+{
+  "name": "programming-thoughts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server/server.js",
+  "scripts": {
+    "install": "cd server && npm i && cd ../client && npm i && npm run build",
+    "start": "node server --ignore client",
+    "build": "cd client && npm run build",
+    "develop": "concurrently \"cd server && npm run start\" \"cd client && npm run dev\"",
+    "seed": "cd server && npm run seed"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^5.1.0"
+  },
+  "dependencies": {
+    "normalize": "^0.3.1",
+    "uikit": "^3.17.11"
+  }
+}
