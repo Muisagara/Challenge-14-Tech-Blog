@@ -1,7 +1,7 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const { Post, Comment, User } = require('../models/');
 
+// get all posts for homepage
 router.get('/', async (req, res) => {
   try {
     const postData = await Post.findAll({
@@ -12,15 +12,14 @@ router.get('/', async (req, res) => {
 
     res.render('all-posts', { posts });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json(err);
   }
 });
 
+// get single post
 router.get('/post/:id', async (req, res) => {
   try {
-    const postId = req.params.id;
-    const postData = await Post.findByPk(postId, {
+    const postData = await Post.findByPk(req.params.id, {
       include: [
         User,
         {
@@ -30,16 +29,15 @@ router.get('/post/:id', async (req, res) => {
       ],
     });
 
-    if (!postData) {
-      res.status(404).end();
-      return;
-    }
+    if (postData) {
+      const post = postData.get({ plain: true });
 
-    const post = postData.get({ plain: true });
-    res.render('single-post', { post });
+      res.render('single-post', { post });
+    } else {
+      res.status(404).end();
+    }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json(err);
   }
 });
 

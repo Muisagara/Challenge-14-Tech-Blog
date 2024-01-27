@@ -1,46 +1,47 @@
-const express = require('express');
-const router = express.Router();
-const Post = require('../models/Post');
+const router = require('express').Router();
+const { Post } = require('../models/');
 const withAuth = require('../utils/auth');
 
 router.get('/', withAuth, async (req, res) => {
   try {
-    const userId = req.user.id; 
+    const postData = await Post.findAll({
+      where: {
+        userId: req.session.userId,
+      },
+    });
 
-    const posts = await Post.find({ creator: userId });
+    const posts = postData.map((post) => post.get({ plain: true }));
 
     res.render('all-posts-admin', {
       layout: 'dashboard',
-      posts: posts
+      posts,
     });
   } catch (err) {
-    console.error(err);
     res.redirect('login');
   }
 });
 
 router.get('/new', withAuth, (req, res) => {
   res.render('new-post', {
-    layout: 'dashboard'
+    layout: 'dashboard',
   });
 });
 
 router.get('/edit/:id', withAuth, async (req, res) => {
   try {
-    const postId = req.params.id;
-    const post = await Post.findById(postId);
+    const postData = await Post.findByPk(req.params.id);
 
-    if (!post) {
+    if (postData) {
+      const post = postData.get({ plain: true });
+
+      res.render('edit-post', {
+        layout: 'dashboard',
+        post,
+      });
+    } else {
       res.status(404).end();
-      return;
     }
-
-    res.render('edit-post', {
-      layout: 'dashboard',
-      post: post
-    });
   } catch (err) {
-    console.error(err);
     res.redirect('login');
   }
 });
